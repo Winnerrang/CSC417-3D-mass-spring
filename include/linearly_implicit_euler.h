@@ -22,4 +22,20 @@ inline void linearly_implicit_euler(Eigen::VectorXd &q, Eigen::VectorXd &qdot, d
     
 
 
+    force(tmp_force, q, qdot);
+    stiffness(tmp_stiffness, q, qdot);
+
+    Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
+    
+
+    // solve the system (M-dt^2 K) qdot^(n+1) = M * qdot^n + dt f(q^n)
+    solver.compute(mass - dt * dt *tmp_stiffness);
+
+    assert(solver.info() == Eigen::Success);
+
+    qdot = solver.solve(mass*qdot + dt*tmp_force);
+
+    q = q + dt*qdot;
+
+
 }
